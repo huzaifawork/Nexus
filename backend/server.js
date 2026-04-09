@@ -37,29 +37,46 @@ app.get('/api/health', (req, res) => res.json({ status: 'Server is running' }));
 app.use(errorHandler);
 
 // Socket.IO connection handling
+const rooms = {};
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
-  // Join video call room
   socket.on('join-call', ({ roomId, userId, userName }) => {
+    if (!rooms[roomId]) {
+      rooms[roomId] = [];
+    }
+    
+    const usersInRoom = rooms[roomId].filter(id => id !== userId);
+    socket.emit('all-users', usersInRoom);
+    
+    rooms[roomId].push(userId);
     socket.join(roomId);
     socket.to(roomId).emit('user-joined', { userId, userName, socketId: socket.id });
     console.log(`${userName} joined room: ${roomId}`);
   });
 
-  // Leave video call room
+  socket.on('sending-signal', ({ userToSignal, callerId, signal }) => {
+    io.to(userToSignal).emit('user-joined', { signal, userId: callerId });
+  });
+
+  socket.on('returning-signal', ({ signal, callerId }) => {
+    io.to(callerId).emit('receiving-signal', { signal, callerId: socket.id });
+  });
+
   socket.on('leave-call', ({ roomId, userId, userName }) => {
+    if (rooms[roomId]) {
+      rooms[roomId] = rooms[roomId].filter(id => id !== userId);
+    }
     socket.to(roomId).emit('user-left', { userId, userName });
     socket.leave(roomId);
     console.log(`${userName} left room: ${roomId}`);
   });
 
-  // Toggle audio
   socket.on('toggle-audio', ({ roomId, userId, audioEnabled }) => {
     socket.to(roomId).emit('user-audio-toggled', { userId, audioEnabled });
   });
 
-  // Toggle video
   socket.on('toggle-video', ({ roomId, userId, videoEnabled }) => {
     socket.to(roomId).emit('user-video-toggled', { userId, videoEnabled });
   });
