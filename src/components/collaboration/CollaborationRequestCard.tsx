@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, X, MessageCircle } from 'lucide-react';
-import { CollaborationRequest } from '../../types';
+import { CollaborationRequest, User } from '../../types';
 import { Card, CardBody, CardFooter } from '../ui/Card';
 import { Avatar } from '../ui/Avatar';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
-import { findUserById } from '../../data/users';
-import { updateRequestStatus } from '../../data/collaborationRequests';
 import { formatDistanceToNow } from 'date-fns';
+import api from '../../lib/api';
+import toast from 'react-hot-toast';
 
 interface CollaborationRequestCardProps {
   request: CollaborationRequest;
@@ -20,45 +20,59 @@ export const CollaborationRequestCard: React.FC<CollaborationRequestCardProps> =
   onStatusUpdate
 }) => {
   const navigate = useNavigate();
-  const investor = findUserById(request.investorId);
-  
+  const [investor, setInvestor] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchInvestor = async () => {
+      try {
+        const { data } = await api.get(`/users/${request.investorId}`);
+        setInvestor(data);
+      } catch {
+        // silently fail
+      }
+    };
+    if (request.investorId) fetchInvestor();
+  }, [request.investorId]);
+
   if (!investor) return null;
-  
-  const handleAccept = () => {
-    updateRequestStatus(request.id, 'accepted');
-    if (onStatusUpdate) {
-      onStatusUpdate(request.id, 'accepted');
+
+  const handleAccept = async () => {
+    try {
+      await api.patch(`/collaborations/${request.id}`, { status: 'accepted' });
+      if (onStatusUpdate) onStatusUpdate(request.id, 'accepted');
+      toast.success('Collaboration request accepted');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to accept request');
     }
   };
-  
-  const handleReject = () => {
-    updateRequestStatus(request.id, 'rejected');
-    if (onStatusUpdate) {
-      onStatusUpdate(request.id, 'rejected');
+
+  const handleReject = async () => {
+    try {
+      await api.patch(`/collaborations/${request.id}`, { status: 'rejected' });
+      if (onStatusUpdate) onStatusUpdate(request.id, 'rejected');
+      toast.success('Collaboration request declined');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Failed to decline request');
     }
   };
-  
+
   const handleMessage = () => {
-    navigate(`/chat/${investor.id}`);
+    navigate(`/chat/${(investor as any)._id || investor.id}`);
   };
-  
+
   const handleViewProfile = () => {
-    navigate(`/profile/investor/${investor.id}`);
+    navigate(`/profile/investor/${(investor as any)._id || investor.id}`);
   };
-  
+
   const getStatusBadge = () => {
     switch (request.status) {
-      case 'pending':
-        return <Badge variant="warning">Pending</Badge>;
-      case 'accepted':
-        return <Badge variant="success">Accepted</Badge>;
-      case 'rejected':
-        return <Badge variant="error">Declined</Badge>;
-      default:
-        return null;
+      case 'pending': return <Badge variant="warning">Pending</Badge>;
+      case 'accepted': return <Badge variant="success">Accepted</Badge>;
+      case 'rejected': return <Badge variant="error">Declined</Badge>;
+      default: return null;
     }
   };
-  
+
   return (
     <Card className="transition-all duration-300">
       <CardBody className="flex flex-col">
@@ -71,7 +85,6 @@ export const CollaborationRequestCard: React.FC<CollaborationRequestCardProps> =
               status={investor.isOnline ? 'online' : 'offline'}
               className="mr-3"
             />
-            
             <div>
               <h3 className="text-md font-semibold text-gray-900">{investor.name}</h3>
               <p className="text-sm text-gray-500">
@@ -79,62 +92,34 @@ export const CollaborationRequestCard: React.FC<CollaborationRequestCardProps> =
               </p>
             </div>
           </div>
-          
           {getStatusBadge()}
         </div>
-        
         <div className="mt-4">
           <p className="text-sm text-gray-600">{request.message}</p>
         </div>
       </CardBody>
-      
+
       <CardFooter className="border-t border-gray-100 bg-gray-50">
         {request.status === 'pending' ? (
           <div className="flex justify-between w-full">
             <div className="space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                leftIcon={<X size={16} />}
-                onClick={handleReject}
-              >
+              <Button variant="outline" size="sm" leftIcon={<X size={16} />} onClick={handleReject}>
                 Decline
               </Button>
-              <Button
-                variant="success"
-                size="sm"
-                leftIcon={<Check size={16} />}
-                onClick={handleAccept}
-              >
+              <Button variant="success" size="sm" leftIcon={<Check size={16} />} onClick={handleAccept}>
                 Accept
               </Button>
             </div>
-            
-            <Button
-              variant="primary"
-              size="sm"
-              leftIcon={<MessageCircle size={16} />}
-              onClick={handleMessage}
-            >
+            <Button variant="primary" size="sm" leftIcon={<MessageCircle size={16} />} onClick={handleMessage}>
               Message
             </Button>
           </div>
         ) : (
           <div className="flex justify-between w-full">
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={<MessageCircle size={16} />}
-              onClick={handleMessage}
-            >
+            <Button variant="outline" size="sm" leftIcon={<MessageCircle size={16} />} onClick={handleMessage}>
               Message
             </Button>
-            
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleViewProfile}
-            >
+            <Button variant="primary" size="sm" onClick={handleViewProfile}>
               View Profile
             </Button>
           </div>
