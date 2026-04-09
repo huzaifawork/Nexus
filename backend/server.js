@@ -16,6 +16,7 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/collaborations', require('./routes/collaborations'));
+app.use('/api/meetings', require('./routes/meetings'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'Server is running' }));

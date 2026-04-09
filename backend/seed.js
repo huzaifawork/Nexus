@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const User = require('./models/User');
 const Collaboration = require('./models/Collaboration');
+const Meeting = require('./models/Meeting');
 
 dotenv.config();
 
@@ -128,6 +129,7 @@ const seedDatabase = async () => {
     // Clear existing data
     await User.deleteMany({});
     await Collaboration.deleteMany({});
+    await Meeting.deleteMany({});
     console.log('Cleared existing data');
 
     // Create entrepreneurs
@@ -156,6 +158,45 @@ const seedDatabase = async () => {
 
     const createdCollaborations = await Collaboration.create(collaborations);
     console.log(`Created ${createdCollaborations.length} collaboration requests`);
+
+    // Create sample meetings
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(10, 0, 0, 0);
+
+    const nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    nextWeek.setHours(14, 0, 0, 0);
+
+    const meetings = [
+      {
+        title: 'Initial Investment Discussion',
+        description: 'Discuss TechWave AI funding requirements and growth strategy',
+        organizerId: createdInvestors[0]._id, // Michael
+        participantId: createdEntrepreneurs[0]._id, // Sarah
+        startTime: tomorrow,
+        endTime: new Date(tomorrow.getTime() + 60 * 60 * 1000), // 1 hour later
+        status: 'accepted',
+        meetingLink: 'https://meet.google.com/abc-defg-hij',
+        location: 'Virtual',
+        collaborationId: createdCollaborations[0]._id,
+      },
+      {
+        title: 'Product Demo & Q&A',
+        description: 'Live demo of HealthPulse platform and technical discussion',
+        organizerId: createdEntrepreneurs[2]._id, // Maya
+        participantId: createdInvestors[2]._id, // Robert
+        startTime: nextWeek,
+        endTime: new Date(nextWeek.getTime() + 90 * 60 * 1000), // 1.5 hours later
+        status: 'pending',
+        meetingLink: 'https://zoom.us/j/123456789',
+        location: 'Virtual',
+        collaborationId: createdCollaborations[1]._id,
+      },
+    ];
+
+    const createdMeetings = await Meeting.create(meetings);
+    console.log(`Created ${createdMeetings.length} sample meetings`);
 
     console.log('\n✅ Database seeded successfully!');
     console.log('\nSample Login Credentials:');
