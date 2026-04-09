@@ -59,6 +59,35 @@ export interface CollaborationRequest {
   createdAt: string;
 }
 
+export interface Meeting {
+  _id: string;
+  title: string;
+  description?: string;
+  organizerId: User | string;
+  participantId: User | string;
+  startTime: string;
+  endTime: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
+  meetingLink?: string;
+  location?: string;
+  notes?: string;
+  collaborationId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateMeetingData {
+  title: string;
+  description?: string;
+  participantId: string;
+  startTime: string;
+  endTime: string;
+  meetingLink?: string;
+  location?: string;
+  notes?: string;
+  collaborationId?: string;
+}
+
 export interface Document {
   id: string;
   name: string;

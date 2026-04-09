@@ -30,6 +30,7 @@ import { SettingsPage } from './pages/settings/SettingsPage';
 import { HelpPage } from './pages/help/HelpPage';
 import { DealsPage } from './pages/deals/DealsPage';
 import { ChatPage } from './pages/chat/ChatPage';
+import { CalendarPage } from './pages/calendar/CalendarPage';
 
 // Role-based guard: redirects if user doesn't have the required role
 const RoleRoute: React.FC<{ role: 'entrepreneur' | 'investor'; children: React.ReactNode }> = ({ role, children }) => {
@@ -97,6 +98,9 @@ function AppRoutes() {
       <Route path="/chat" element={<DashboardLayout />}>
         <Route index element={<ChatPage />} />
         <Route path=":userId" element={<ChatPage />} />
+      </Route>
+      <Route path="/calendar" element={<DashboardLayout />}>
+        <Route index element={<CalendarPage />} />
       </Route>
 
       {/* Root redirect based on role */}
