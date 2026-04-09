@@ -141,28 +141,16 @@ const seedDatabase = async () => {
     // Create sample collaboration requests
     const collaborations = [
       {
-        investorId: createdInvestors[0]._id, // Michael -> Sarah
-        entrepreneurId: createdEntrepreneurs[0]._id,
-        message: "I'm impressed by TechWave AI's approach to financial analytics. I'd love to discuss potential investment opportunities and how my experience in SaaS could help scale your platform.",
-        status: 'pending',
-      },
-      {
         investorId: createdInvestors[1]._id, // Jennifer -> David
         entrepreneurId: createdEntrepreneurs[1]._id,
         message: "GreenLife Solutions aligns perfectly with our impact investment thesis. Your biodegradable packaging solution addresses a critical market need. Let's explore a partnership.",
-        status: 'accepted',
+        status: 'pending',
       },
       {
         investorId: createdInvestors[2]._id, // Robert -> Maya
         entrepreneurId: createdEntrepreneurs[2]._id,
         message: "HealthPulse's mental health platform is exactly what the healthcare industry needs. I'd like to learn more about your growth strategy and discuss how we can support your Series A.",
         status: 'pending',
-      },
-      {
-        investorId: createdInvestors[0]._id, // Michael -> Maya
-        entrepreneurId: createdEntrepreneurs[2]._id,
-        message: "Your team's healthcare background combined with strong tech execution is impressive. Would love to schedule a call to discuss HealthPulse's roadmap.",
-        status: 'rejected',
       },
     ];
 

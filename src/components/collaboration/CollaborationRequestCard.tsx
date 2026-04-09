@@ -23,23 +23,29 @@ export const CollaborationRequestCard: React.FC<CollaborationRequestCardProps> =
   const [investor, setInvestor] = useState<User | null>(null);
 
   useEffect(() => {
-    const fetchInvestor = async () => {
-      try {
-        const { data } = await api.get(`/users/${request.investorId}`);
-        setInvestor(data);
-      } catch {
-        // silently fail
-      }
-    };
-    if (request.investorId) fetchInvestor();
+    // Check if investor data is already populated
+    if (request.investorId && typeof request.investorId === 'object') {
+      setInvestor(request.investorId as any);
+    } else if (request.investorId) {
+      // Fetch investor if only ID is provided
+      const fetchInvestor = async () => {
+        try {
+          const { data } = await api.get(`/users/${request.investorId}`);
+          setInvestor(data);
+        } catch {
+          // silently fail
+        }
+      };
+      fetchInvestor();
+    }
   }, [request.investorId]);
 
   if (!investor) return null;
 
   const handleAccept = async () => {
     try {
-      await api.patch(`/collaborations/${request.id}`, { status: 'accepted' });
-      if (onStatusUpdate) onStatusUpdate(request.id, 'accepted');
+      await api.patch(`/collaborations/${(request as any)._id || request.id}`, { status: 'accepted' });
+      if (onStatusUpdate) onStatusUpdate((request as any)._id || request.id, 'accepted');
       toast.success('Collaboration request accepted');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to accept request');
@@ -48,8 +54,8 @@ export const CollaborationRequestCard: React.FC<CollaborationRequestCardProps> =
 
   const handleReject = async () => {
     try {
-      await api.patch(`/collaborations/${request.id}`, { status: 'rejected' });
-      if (onStatusUpdate) onStatusUpdate(request.id, 'rejected');
+      await api.patch(`/collaborations/${(request as any)._id || request.id}`, { status: 'rejected' });
+      if (onStatusUpdate) onStatusUpdate((request as any)._id || request.id, 'rejected');
       toast.success('Collaboration request declined');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to decline request');

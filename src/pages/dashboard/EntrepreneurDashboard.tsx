@@ -33,7 +33,7 @@ export const EntrepreneurDashboard: React.FC = () => {
 
   const handleRequestStatusUpdate = (requestId: string, status: 'accepted' | 'rejected') => {
     setCollaborationRequests(prev =>
-      prev.map(req => req.id === requestId ? { ...req, status } : req)
+      prev.map(req => ((req as any)._id || req.id) === requestId ? { ...req, status } : req)
     );
   };
 
@@ -117,7 +117,7 @@ export const EntrepreneurDashboard: React.FC = () => {
                 <div className="space-y-4">
                   {collaborationRequests.map(request => (
                     <CollaborationRequestCard
-                      key={request.id}
+                      key={(request as any)._id || request.id}
                       request={request}
                       onStatusUpdate={handleRequestStatusUpdate}
                     />

@@ -19,12 +19,12 @@ export const EntrepreneurCard: React.FC<EntrepreneurCardProps> = ({
   const navigate = useNavigate();
   
   const handleViewProfile = () => {
-    navigate(`/profile/entrepreneur/${entrepreneur.id}`);
+    navigate(`/profile/entrepreneur/${(entrepreneur as any)._id || entrepreneur.id}`);
   };
   
   const handleMessage = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click
-    navigate(`/chat/${entrepreneur.id}`);
+    navigate(`/chat/${(entrepreneur as any)._id || entrepreneur.id}`);
   };
   
   return (

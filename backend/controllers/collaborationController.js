@@ -25,6 +25,10 @@ const createCollaboration = async (req, res) => {
       return res.status(403).json({ message: 'Only investors can send collaboration requests' });
     }
 
+    if (!entrepreneurId) {
+      return res.status(400).json({ message: 'Entrepreneur ID is required' });
+    }
+
     const existing = await Collaboration.findOne({ investorId: req.user._id, entrepreneurId });
     if (existing) return res.status(400).json({ message: 'Request already sent to this entrepreneur' });
 

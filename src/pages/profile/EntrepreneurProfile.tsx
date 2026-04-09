@@ -16,6 +16,7 @@ export const EntrepreneurProfile: React.FC = () => {
   const [entrepreneur, setEntrepreneur] = useState<Entrepreneur | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasRequested, setHasRequested] = useState(false);
+  const [requestStatus, setRequestStatus] = useState<'none' | 'pending' | 'accepted' | 'rejected'>('none');
 
   useEffect(() => {
     const fetchEntrepreneur = async () => {
@@ -23,6 +24,22 @@ export const EntrepreneurProfile: React.FC = () => {
         const { data } = await api.get(`/users/${id}`);
         if (data.role !== 'entrepreneur') throw new Error('Not an entrepreneur');
         setEntrepreneur(data);
+        
+        // Check if already sent a request to this entrepreneur
+        if (currentUser?.role === 'investor') {
+          try {
+            const { data: collaborations } = await api.get('/collaborations');
+            const existingRequest = collaborations.find(
+              (collab: any) => (collab.entrepreneurId === id || collab.entrepreneurId._id === id || collab.entrepreneurId === data._id)
+            );
+            if (existingRequest) {
+              setHasRequested(true);
+              setRequestStatus(existingRequest.status);
+            }
+          } catch {
+            // silently fail
+          }
+        }
       } catch {
         setEntrepreneur(null);
       } finally {
@@ -30,18 +47,26 @@ export const EntrepreneurProfile: React.FC = () => {
       }
     };
     if (id) fetchEntrepreneur();
-  }, [id]);
+  }, [id, currentUser]);
 
   const handleSendRequest = async () => {
     try {
+      const entrepreneurId = (entrepreneur as any)._id || entrepreneur.id || id;
+      
       await api.post('/collaborations', {
-        entrepreneurId: id,
+        entrepreneurId,
         message: `I'm interested in learning more about ${entrepreneur?.startupName} and would like to explore potential investment opportunities.`,
       });
       setHasRequested(true);
-      toast.success('Collaboration request sent!');
+      setRequestStatus('pending');
+      toast.success('Collaboration request sent successfully!');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to send request');
+      if (error.response?.data?.message === 'Request already sent to this entrepreneur') {
+        toast.error('You have already sent a request to this entrepreneur');
+        setHasRequested(true);
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to send request');
+      }
     }
   };
 
@@ -103,6 +128,49 @@ export const EntrepreneurProfile: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
+          {isInvestor && hasRequested && (
+            <Card className={`border-2 ${
+              requestStatus === 'pending' ? 'bg-yellow-50 border-yellow-200' :
+              requestStatus === 'accepted' ? 'bg-green-50 border-green-200' :
+              requestStatus === 'rejected' ? 'bg-red-50 border-red-200' : ''
+            }`}>
+              <CardBody className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className={`p-2 rounded-full mr-3 ${
+                    requestStatus === 'pending' ? 'bg-yellow-100' :
+                    requestStatus === 'accepted' ? 'bg-green-100' :
+                    requestStatus === 'rejected' ? 'bg-red-100' : ''
+                  }`}>
+                    <Send size={20} className={`${
+                      requestStatus === 'pending' ? 'text-yellow-700' :
+                      requestStatus === 'accepted' ? 'text-green-700' :
+                      requestStatus === 'rejected' ? 'text-red-700' : ''
+                    }`} />
+                  </div>
+                  <div>
+                    <h3 className="text-md font-semibold text-gray-900">
+                      {requestStatus === 'pending' && 'Collaboration Request Pending'}
+                      {requestStatus === 'accepted' && 'Collaboration Request Accepted'}
+                      {requestStatus === 'rejected' && 'Collaboration Request Declined'}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {requestStatus === 'pending' && 'Waiting for entrepreneur to respond to your request'}
+                      {requestStatus === 'accepted' && 'You can now collaborate with this entrepreneur'}
+                      {requestStatus === 'rejected' && 'Your request was declined by the entrepreneur'}
+                    </p>
+                  </div>
+                </div>
+                <Badge variant={
+                  requestStatus === 'pending' ? 'warning' :
+                  requestStatus === 'accepted' ? 'success' :
+                  requestStatus === 'rejected' ? 'error' : 'gray'
+                }>
+                  {requestStatus.charAt(0).toUpperCase() + requestStatus.slice(1)}
+                </Badge>
+              </CardBody>
+            </Card>
+          )}
+
           <Card>
             <CardHeader><h2 className="text-lg font-medium text-gray-900">About</h2></CardHeader>
             <CardBody><p className="text-gray-700">{entrepreneur.bio || 'No bio provided.'}</p></CardBody>
