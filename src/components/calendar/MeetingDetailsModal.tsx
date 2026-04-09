@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Calendar, Clock, MapPin, Link as LinkIcon, User, Check, XCircle, Trash2 } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Link as LinkIcon, User, Check, XCircle, Trash2, Video } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Meeting, User as UserType } from '../../types';
@@ -13,6 +13,7 @@ interface MeetingDetailsModalProps {
   onClose: () => void;
   meeting: Meeting;
   onUpdate: () => void;
+  onJoinCall?: (meetingId: string) => void;
 }
 
 export const MeetingDetailsModal: React.FC<MeetingDetailsModalProps> = ({
@@ -20,6 +21,7 @@ export const MeetingDetailsModal: React.FC<MeetingDetailsModalProps> = ({
   onClose,
   meeting,
   onUpdate,
+  onJoinCall,
 }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -208,6 +210,16 @@ export const MeetingDetailsModal: React.FC<MeetingDetailsModalProps> = ({
           {/* Actions */}
           <div className="flex justify-between items-center pt-4 border-t">
             <div className="flex space-x-2">
+              {meeting.status === 'accepted' && onJoinCall && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<Video size={16} />}
+                  onClick={() => onJoinCall(meeting._id)}
+                >
+                  Join Video Call
+                </Button>
+              )}
               {isOrganizer && meeting.status !== 'cancelled' && (
                 <Button
                   variant="outline"

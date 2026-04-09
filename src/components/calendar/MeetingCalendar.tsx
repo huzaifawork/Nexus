@@ -9,6 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { MeetingModal } from './MeetingModal';
 import { MeetingDetailsModal } from './MeetingDetailsModal';
+import { VideoCall } from '../video/VideoCall';
 
 const locales = {
   'en-US': enUS,
@@ -40,6 +41,8 @@ export const MeetingCalendar: React.FC = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
+  const [inCall, setInCall] = useState(false);
+  const [callMeetingId, setCallMeetingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMeetings();
@@ -89,6 +92,17 @@ export const MeetingCalendar: React.FC = () => {
     fetchMeetings();
   };
 
+  const handleJoinCall = (meetingId: string) => {
+    setCallMeetingId(meetingId);
+    setInCall(true);
+    setShowDetailsModal(false);
+  };
+
+  const handleCallEnd = () => {
+    setInCall(false);
+    setCallMeetingId(null);
+  };
+
   const eventStyleGetter = (event: CalendarEvent) => {
     const meeting = event.resource;
     let backgroundColor = '#3b82f6';
@@ -116,6 +130,10 @@ export const MeetingCalendar: React.FC = () => {
       },
     };
   };
+
+  if (inCall && callMeetingId) {
+    return <VideoCall meetingId={callMeetingId} onCallEnd={handleCallEnd} />;
+  }
 
   if (loading) {
     return (
@@ -196,6 +214,7 @@ export const MeetingCalendar: React.FC = () => {
           }}
           meeting={selectedMeeting}
           onUpdate={handleUpdateMeeting}
+          onJoinCall={handleJoinCall}
         />
       )}
     </div>
