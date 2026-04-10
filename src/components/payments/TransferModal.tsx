@@ -95,8 +95,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({
       );
 
       if (
-        response.data.transactions[0].status === "completed" &&
-        response.data.transactions[1].status === "completed"
+        response.data.transactions?.senderTransaction?.status === "completed" &&
+        response.data.transactions?.recipientTransaction?.status === "completed"
       ) {
         toast.success(
           `Transfer of $${amount} to ${recipientUser.name} successful!`,

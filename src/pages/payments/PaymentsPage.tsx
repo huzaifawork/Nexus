@@ -236,9 +236,7 @@ export const PaymentsPage: React.FC = () => {
             </div>
           ) : (
             <div className="text-center py-6">
-              <p className="text-gray-500 mb-3">
-                No payment methods added yet
-              </p>
+              <p className="text-gray-500 mb-3">No payment methods added yet</p>
               <Button
                 size="sm"
                 onClick={() => setShowAddPaymentModal(true)}

@@ -138,7 +138,8 @@ export const WithdrawModal: React.FC<WithdrawModalProps> = ({
                   📌 No payment methods available
                 </p>
                 <p className="text-xs text-yellow-700 mt-1">
-                  Please add a payment method first using the "Add Method" button on the Payments page.
+                  Please add a payment method first using the "Add Method"
+                  button on the Payments page.
                 </p>
               </div>
             )}

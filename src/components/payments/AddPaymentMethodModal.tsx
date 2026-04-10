@@ -228,7 +228,11 @@ export const AddPaymentMethodModal: React.FC<AddPaymentMethodModalProps> = ({
             className="flex-1"
             onClick={handleAddPaymentMethod}
             disabled={loading}
-            leftIcon={loading ? <Loader size={18} className="animate-spin" /> : undefined}
+            leftIcon={
+              loading ? (
+                <Loader size={18} className="animate-spin" />
+              ) : undefined
+            }
           >
             {loading ? "Adding..." : "Add Method"}
           </Button>
