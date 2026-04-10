@@ -166,7 +166,8 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               className="w-full"
             />
             <p className="text-xs text-gray-500 mt-1">
-              💡 Enter the recipient's full email address (e.g., david@example.com)
+              💡 Enter the recipient's full email address (e.g.,
+              david@example.com)
             </p>
             {searching && (
               <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
@@ -186,7 +187,9 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               !searching &&
               recipientEmail !== user?.email && (
                 <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-xs text-red-600 font-medium">❌ User not found</p>
+                  <p className="text-xs text-red-600 font-medium">
+                    ❌ User not found
+                  </p>
                   <p className="text-xs text-red-500 mt-1">
                     Make sure you entered a valid email address
                   </p>

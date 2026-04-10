@@ -83,8 +83,11 @@ export const PaymentsPage: React.FC = () => {
   };
 
   const handleActionSuccess = () => {
-    loadWalletData();
-    loadPaymentMethods();
+    // Small delay to ensure backend has processed the transaction
+    setTimeout(() => {
+      loadWalletData();
+      loadPaymentMethods();
+    }, 500);
     setShowDepositModal(false);
     setShowWithdrawModal(false);
     setShowTransferModal(false);
@@ -101,9 +104,23 @@ export const PaymentsPage: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Payments & Wallet</h1>
-        <p className="text-gray-600">Manage your funds and transactions</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Payments & Wallet
+          </h1>
+          <p className="text-gray-600">Manage your funds and transactions</p>
+        </div>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={loadWalletData}
+          leftIcon={
+            loading ? <Loader size={16} className="animate-spin" /> : undefined
+          }
+        >
+          Refresh Balance
+        </Button>
       </div>
 
       {/* Wallet Balance Card */}
