@@ -6,6 +6,7 @@ import {
   Upload,
   CreditCard,
   Loader,
+  Plus,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Button } from "../../components/ui/Button";
@@ -17,6 +18,7 @@ import DepositModal from "../../components/payments/DepositModal";
 import WithdrawModal from "../../components/payments/WithdrawModal";
 import TransferModal from "../../components/payments/TransferModal";
 import TransactionHistory from "../../components/payments/TransactionHistory";
+import AddPaymentMethodModal from "../../components/payments/AddPaymentMethodModal";
 
 interface WalletStats {
   balance: number;
@@ -36,6 +38,7 @@ export const PaymentsPage: React.FC = () => {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
 
   useEffect(() => {
@@ -196,7 +199,14 @@ export const PaymentsPage: React.FC = () => {
           <h2 className="text-lg font-semibold text-gray-900">
             Payment Methods
           </h2>
-          <CreditCard size={20} className="text-gray-400" />
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setShowAddPaymentModal(true)}
+            leftIcon={<Plus size={16} />}
+          >
+            Add Method
+          </Button>
         </CardHeader>
         <CardBody>
           {paymentMethods.length > 0 ? (
@@ -225,9 +235,18 @@ export const PaymentsPage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">
-              No payment methods added yet
-            </p>
+            <div className="text-center py-6">
+              <p className="text-gray-500 mb-3">
+                No payment methods added yet
+              </p>
+              <Button
+                size="sm"
+                onClick={() => setShowAddPaymentModal(true)}
+                leftIcon={<Plus size={16} />}
+              >
+                Add Your First Payment Method
+              </Button>
+            </div>
           )}
         </CardBody>
       </Card>
@@ -254,6 +273,15 @@ export const PaymentsPage: React.FC = () => {
         <TransferModal
           onSuccess={handleActionSuccess}
           onClose={() => setShowTransferModal(false)}
+        />
+      )}
+      {showAddPaymentModal && (
+        <AddPaymentMethodModal
+          onSuccess={() => {
+            loadPaymentMethods();
+            setShowAddPaymentModal(false);
+          }}
+          onClose={() => setShowAddPaymentModal(false)}
         />
       )}
     </div>

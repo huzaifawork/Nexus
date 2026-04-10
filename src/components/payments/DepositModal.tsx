@@ -125,9 +125,14 @@ export const DepositModal: React.FC<DepositModalProps> = ({
                 ))}
               </select>
             ) : (
-              <p className="text-sm text-gray-500 p-3 bg-gray-50 rounded-lg">
-                No payment methods available. Add one first.
-              </p>
+              <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+                <p className="text-sm text-blue-900 font-medium">
+                  📌 No payment methods available
+                </p>
+                <p className="text-xs text-blue-700 mt-1">
+                  Please add a payment method first using the "Add Method" button on the Payments page.
+                </p>
+              </div>
             )}
           </div>
 
