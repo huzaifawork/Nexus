@@ -155,7 +155,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({
           {/* Recipient */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Send To (Email)
+              Send To (Email Address)
             </label>
             <Input
               type="email"
@@ -165,8 +165,11 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               disabled={loading}
               className="w-full"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              💡 Enter the recipient's full email address (e.g., david@example.com)
+            </p>
             {searching && (
-              <p className="text-xs text-blue-600 mt-1 flex items-center gap-1">
+              <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
                 <Loader size={12} className="animate-spin" /> Searching...
               </p>
             )}
@@ -182,7 +185,12 @@ export const TransferModal: React.FC<TransferModalProps> = ({
               !recipientUser &&
               !searching &&
               recipientEmail !== user?.email && (
-                <p className="text-xs text-red-600 mt-1">User not found</p>
+                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-xs text-red-600 font-medium">❌ User not found</p>
+                  <p className="text-xs text-red-500 mt-1">
+                    Make sure you entered a valid email address
+                  </p>
+                </div>
               )}
           </div>
 

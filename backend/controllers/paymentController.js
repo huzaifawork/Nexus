@@ -104,10 +104,16 @@ exports.withdraw = async (req, res) => {
       return res.status(400).json({ message: "Invalid amount" });
     }
 
-    // Check wallet balance
+    // Create withdrawal fee (2%)
+    const fee = Math.round(amount * 0.02 * 100) / 100;
+
+    // Check wallet balance (including fee)
     const user = await User.findById(req.user._id);
-    if (!user.walletBalance || user.walletBalance < amount) {
-      return res.status(400).json({ message: "Insufficient wallet balance" });
+    const totalRequired = amount + fee;
+    if (!user.walletBalance || user.walletBalance < totalRequired) {
+      return res.status(400).json({
+        message: `Insufficient wallet balance. Required: $${totalRequired.toFixed(2)} (includes $${fee.toFixed(2)} fee), Available: $${user.walletBalance?.toFixed(2) || 0}`,
+      });
     }
 
     // Get payment method
@@ -118,9 +124,6 @@ exports.withdraw = async (req, res) => {
     ) {
       return res.status(404).json({ message: "Payment method not found" });
     }
-
-    // Create withdrawal fee (2%)
-    const fee = Math.round(amount * 0.02 * 100) / 100;
 
     // Create pending transaction
     const transaction = new Transaction({
@@ -185,10 +188,16 @@ exports.transfer = async (req, res) => {
       return res.status(400).json({ message: "Cannot transfer to yourself" });
     }
 
-    // Check sender balance
+    // Create transfer fee (1%)
+    const fee = Math.round(amount * 0.01 * 100) / 100;
+
+    // Check sender balance (including fee)
     const sender = await User.findById(req.user._id);
-    if (!sender.walletBalance || sender.walletBalance < amount) {
-      return res.status(400).json({ message: "Insufficient wallet balance" });
+    const totalRequired = amount + fee;
+    if (!sender.walletBalance || sender.walletBalance < totalRequired) {
+      return res.status(400).json({
+        message: `Insufficient wallet balance. Required: $${totalRequired.toFixed(2)} (includes $${fee.toFixed(2)} fee), Available: $${sender.walletBalance?.toFixed(2) || 0}`,
+      });
     }
 
     // Check recipient exists
@@ -196,9 +205,6 @@ exports.transfer = async (req, res) => {
     if (!recipient) {
       return res.status(404).json({ message: "Recipient not found" });
     }
-
-    // Create transfer fee (1%)
-    const fee = Math.round(amount * 0.01 * 100) / 100;
 
     // Create transfer-out transaction
     const transferOut = new Transaction({
