@@ -35,6 +35,7 @@ app.use("/api/meetings", require("./routes/meetings"));
 app.use("/api/video-call", require("./routes/videoCall"));
 app.use("/api/documents", require("./routes/documents"));
 app.use("/api/signatures", require("./routes/signatures"));
+app.use("/api/payments", require("./routes/payments"));
 
 // Health check
 app.get("/api/health", (req, res) => res.json({ status: "Server is running" }));

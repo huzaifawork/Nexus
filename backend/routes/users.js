@@ -7,11 +7,15 @@ const {
   getEntrepreneurs,
   getInvestors,
   changePassword,
+  searchUser,
 } = require("../controllers/userController");
 const { protect, roleGuard } = require("../middleware/auth");
 
 // Get all users (for sharing)
 router.get("/", protect, getAllUsers);
+
+// Search user by email
+router.get("/search", protect, searchUser);
 
 // Only investors can browse entrepreneurs and vice versa (plus own role can see their own list)
 router.get("/entrepreneurs", protect, getEntrepreneurs);

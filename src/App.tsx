@@ -1,44 +1,62 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { useAuth } from './context/AuthContext';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./context/AuthContext";
 
 // Layouts
-import { DashboardLayout } from './components/layout/DashboardLayout';
+import { DashboardLayout } from "./components/layout/DashboardLayout";
 
 // Auth Pages
-import { LoginPage } from './pages/auth/LoginPage';
-import { RegisterPage } from './pages/auth/RegisterPage';
-import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
-import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
+import { LoginPage } from "./pages/auth/LoginPage";
+import { RegisterPage } from "./pages/auth/RegisterPage";
+import { ForgotPasswordPage } from "./pages/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
 
 // Dashboard Pages
-import { EntrepreneurDashboard } from './pages/dashboard/EntrepreneurDashboard';
-import { InvestorDashboard } from './pages/dashboard/InvestorDashboard';
+import { EntrepreneurDashboard } from "./pages/dashboard/EntrepreneurDashboard";
+import { InvestorDashboard } from "./pages/dashboard/InvestorDashboard";
 
 // Profile Pages
-import { EntrepreneurProfile } from './pages/profile/EntrepreneurProfile';
-import { InvestorProfile } from './pages/profile/InvestorProfile';
+import { EntrepreneurProfile } from "./pages/profile/EntrepreneurProfile";
+import { InvestorProfile } from "./pages/profile/InvestorProfile";
 
 // Feature Pages
-import { InvestorsPage } from './pages/investors/InvestorsPage';
-import { EntrepreneursPage } from './pages/entrepreneurs/EntrepreneursPage';
-import { MessagesPage } from './pages/messages/MessagesPage';
-import { NotificationsPage } from './pages/notifications/NotificationsPage';
-import { DocumentsPage } from './pages/documents/DocumentsPage';
-import { SettingsPage } from './pages/settings/SettingsPage';
-import { HelpPage } from './pages/help/HelpPage';
-import { DealsPage } from './pages/deals/DealsPage';
-import { ChatPage } from './pages/chat/ChatPage';
-import { CalendarPage } from './pages/calendar/CalendarPage';
+import { InvestorsPage } from "./pages/investors/InvestorsPage";
+import { EntrepreneursPage } from "./pages/entrepreneurs/EntrepreneursPage";
+import { MessagesPage } from "./pages/messages/MessagesPage";
+import { NotificationsPage } from "./pages/notifications/NotificationsPage";
+import { DocumentsPage } from "./pages/documents/DocumentsPage";
+import { SettingsPage } from "./pages/settings/SettingsPage";
+import { HelpPage } from "./pages/help/HelpPage";
+import { DealsPage } from "./pages/deals/DealsPage";
+import { ChatPage } from "./pages/chat/ChatPage";
+import { CalendarPage } from "./pages/calendar/CalendarPage";
+import { PaymentsPage } from "./pages/payments/PaymentsPage";
 
 // Role-based guard: redirects if user doesn't have the required role
-const RoleRoute: React.FC<{ role: 'entrepreneur' | 'investor'; children: React.ReactNode }> = ({ role, children }) => {
+const RoleRoute: React.FC<{
+  role: "entrepreneur" | "investor";
+  children: React.ReactNode;
+}> = ({ role, children }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   if (isLoading) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (user?.role !== role) {
-    return <Navigate to={user?.role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor'} replace />;
+    return (
+      <Navigate
+        to={
+          user?.role === "entrepreneur"
+            ? "/dashboard/entrepreneur"
+            : "/dashboard/investor"
+        }
+        replace
+      />
+    );
   }
   return <>{children}</>;
 };
@@ -56,12 +74,22 @@ function AppRoutes() {
 
       {/* Entrepreneur-only dashboard */}
       <Route path="/dashboard" element={<DashboardLayout />}>
-        <Route path="entrepreneur" element={
-          <RoleRoute role="entrepreneur"><EntrepreneurDashboard /></RoleRoute>
-        } />
-        <Route path="investor" element={
-          <RoleRoute role="investor"><InvestorDashboard /></RoleRoute>
-        } />
+        <Route
+          path="entrepreneur"
+          element={
+            <RoleRoute role="entrepreneur">
+              <EntrepreneurDashboard />
+            </RoleRoute>
+          }
+        />
+        <Route
+          path="investor"
+          element={
+            <RoleRoute role="investor">
+              <InvestorDashboard />
+            </RoleRoute>
+          }
+        />
       </Route>
 
       {/* Profile Routes */}
@@ -102,13 +130,28 @@ function AppRoutes() {
       <Route path="/calendar" element={<DashboardLayout />}>
         <Route index element={<CalendarPage />} />
       </Route>
+      <Route path="/payments" element={<DashboardLayout />}>
+        <Route index element={<PaymentsPage />} />
+      </Route>
 
       {/* Root redirect based on role */}
-      <Route path="/" element={
-        isAuthenticated
-          ? <Navigate to={user?.role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor'} replace />
-          : <Navigate to="/login" replace />
-      } />
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate
+              to={
+                user?.role === "entrepreneur"
+                  ? "/dashboard/entrepreneur"
+                  : "/dashboard/investor"
+              }
+              replace
+            />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
