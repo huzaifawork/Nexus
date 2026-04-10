@@ -9,19 +9,27 @@ const {
   changePassword,
   searchUser,
 } = require("../controllers/userController");
-const { protect, roleGuard } = require("../middleware/auth");
+const { protect, authorize, isOwner } = require("../middleware/auth");
 
-// Get all users (for sharing)
+// Get all users (for sharing) - any authenticated user
 router.get("/", protect, getAllUsers);
 
-// Search user by email
+// Search user by email - any authenticated user
 router.get("/search", protect, searchUser);
 
-// Only investors can browse entrepreneurs and vice versa (plus own role can see their own list)
+// Get entrepreneurs - any authenticated user
 router.get("/entrepreneurs", protect, getEntrepreneurs);
+
+// Get investors - any authenticated user
 router.get("/investors", protect, getInvestors);
+
+// Get user by ID - any authenticated user (public profile info)
 router.get("/:id", protect, getUserById);
-router.put("/:id", protect, updateUser);
-router.put("/:id/change-password", protect, changePassword);
+
+// Update user profile - only the user can update their own profile
+router.put("/:id", protect, isOwner, updateUser);
+
+// Change password - all authenticated users can change their own password
+router.put("/:id/change-password", protect, isOwner, changePassword);
 
 module.exports = router;

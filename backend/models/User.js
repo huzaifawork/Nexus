@@ -32,6 +32,12 @@ const UserSchema = new mongoose.Schema(
     walletBalance: { type: Number, default: 0 },
     totalTransacted: { type: Number, default: 0 },
 
+    // Security
+    twoFactorEnabled: { type: Boolean, default: false },
+    lastLoginAt: { type: Date },
+    loginAttempts: { type: Number, default: 0 },
+    lockoutUntil: { type: Date },
+
     // Password reset
     resetPasswordToken: { type: String },
     resetPasswordExpire: { type: Date },

@@ -27,11 +27,22 @@ export const RegisterPage: React.FC = () => {
       setError('Passwords do not match');
       return;
     }
+
+    // Validate password strength
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)) {
+      setError('Password must contain uppercase, lowercase, number, and special character (@$!%*?&)');
+      return;
+    }
     
     setIsLoading(true);
     
     try {
-      await register(name, email, password, role);
+      await register(name, email, password, confirmPassword, role);
       // Redirect based on user role
       navigate(role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor');
     } catch (err) {

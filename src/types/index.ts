@@ -11,6 +11,9 @@ export interface User {
   isOnline?: boolean;
   createdAt: string;
   token?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  twoFactorEnabled?: boolean;
 }
 
 export interface Entrepreneur extends User {
@@ -102,11 +105,15 @@ export interface Document {
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string, role: UserRole) => Promise<void>;
-  register: (name: string, email: string, password: string, role: UserRole) => Promise<void>;
+  register: (name: string, email: string, password: string, confirmPassword: string, role: UserRole) => Promise<void>;
   logout: () => void;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
   updateProfile: (userId: string, updates: Partial<User>) => Promise<void>;
+  verifyOTP: (otpId: string, code: string) => Promise<User>;
+  resendOTP: (otpId: string) => Promise<void>;
   isAuthenticated: boolean;
   isLoading: boolean;
+  otpRequired: boolean;
+  otpData: any;
 }

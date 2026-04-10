@@ -4,6 +4,7 @@ import { User, CircleDollarSign, Building2, LogIn, AlertCircle } from 'lucide-re
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { OTPVerification } from '../../components/auth/OTPVerification';
 import { UserRole } from '../../types';
 
 export const LoginPage: React.FC = () => {
@@ -13,7 +14,7 @@ export const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { login, otpRequired, otpData } = useAuth();
   const navigate = useNavigate();
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,25 +24,48 @@ export const LoginPage: React.FC = () => {
     
     try {
       await login(email, password, role);
-      // Redirect based on user role
-      navigate(role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor');
+      // If 2FA not required, navigate directly
+      if (!otpRequired) {
+        navigate(role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor');
+      }
     } catch (err) {
       setError((err as Error).message);
       setIsLoading(false);
     }
+  };
+
+  const handleOTPSuccess = (userData: any) => {
+    navigate(userData.role === 'entrepreneur' ? '/dashboard/entrepreneur' : '/dashboard/investor');
+  };
+
+  const handleBackToLogin = () => {
+    // Reset OTP state by reloading login page
+    window.location.reload();
   };
   
   // For demo purposes, pre-filled credentials
   const fillDemoCredentials = (userRole: UserRole) => {
     if (userRole === 'entrepreneur') {
       setEmail('sarah@techwave.io');
-      setPassword('password123');
+      setPassword('SecurePass@123');
     } else {
       setEmail('michael@vcinnovate.com');
-      setPassword('password123');
+      setPassword('SecurePass@123');
     }
     setRole(userRole);
   };
+
+  // Show OTP verification screen if required
+  if (otpRequired && otpData) {
+    return (
+      <OTPVerification
+        otpId={otpData.otpId}
+        email={otpData.email}
+        onVerificationSuccess={handleOTPSuccess}
+        onBackToLogin={handleBackToLogin}
+      />
+    );
+  }
   
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -58,7 +82,7 @@ export const LoginPage: React.FC = () => {
           Sign in to Business Nexus
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Connect with investors and entrepreneurs
+          Secure access with 2FA protection
         </p>
       </div>
 
@@ -66,10 +90,18 @@ export const LoginPage: React.FC = () => {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {error && (
             <div className="mb-4 bg-error-50 border border-error-500 text-error-700 px-4 py-3 rounded-md flex items-start">
-              <AlertCircle size={18} className="mr-2 mt-0.5" />
+              <AlertCircle size={18} className="mr-2 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
+
+          {/* Security Notice */}
+          <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-700">
+            <p className="font-semibold flex items-center mb-1">
+              <span className="text-lg mr-2">🔐</span> Enhanced Security
+            </p>
+            <p>This account is protected with Two-Factor Authentication (2FA). You'll need to verify with a code sent to your email.</p>
+          </div>
           
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
@@ -138,9 +170,9 @@ export const LoginPage: React.FC = () => {
               </div>
 
               <div className="text-sm">
-                <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
+                <Link to="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500">
                   Forgot your password?
-                </a>
+                </Link>
               </div>
             </div>
             
@@ -181,6 +213,10 @@ export const LoginPage: React.FC = () => {
                 Investor Demo
               </Button>
             </div>
+
+            <p className="mt-3 text-xs text-gray-500 text-center">
+              Demo OTP codes are sent to email instantly. Check your inbox!
+            </p>
           </div>
           
           <div className="mt-6">

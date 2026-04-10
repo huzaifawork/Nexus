@@ -5,6 +5,7 @@ const cors = require("cors");
 const { Server } = require("socket.io");
 const connectDB = require("./config/db");
 const { errorHandler } = require("./middleware/errorHandler");
+const { sanitizeInputs } = require("./middleware/sanitize");
 
 dotenv.config();
 connectDB();
@@ -20,6 +21,9 @@ const io = new Server(server, {
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
+
+// 🔒 Security Middleware: Sanitize inputs to prevent NoSQL injection and XSS
+app.use(sanitizeInputs);
 
 // Make io accessible to routes
 app.set("io", io);
