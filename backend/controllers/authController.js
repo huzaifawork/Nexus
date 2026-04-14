@@ -35,17 +35,6 @@ const sendOTPEmail = async (email, otp) => {
     return false;
   }
 };
-};
-          <p style="color: #999; font-size: 12px;">If you didn't request this code, please ignore this email.</p>
-        </div>
-      `,
-    });
-    return true;
-  } catch (error) {
-    console.error("Email sending error:", error);
-    return false;
-  }
-};
 
 // @route  POST /api/auth/register
 const register = async (req, res) => {

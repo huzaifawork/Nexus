@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../../lib/api";
+import { useAuth } from "../../context/AuthContext";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
@@ -17,6 +17,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
   onVerificationSuccess,
   onBackToLogin,
 }) => {
+  const { verifyOTP, resendOTP } = useAuth();
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,21 +44,11 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
     }
 
     try {
-      const response = await api.post("/auth/verify-otp", {
-        otpId,
-        code: otp,
-      });
-
-      if (response.data.accessToken) {
-        // Store tokens
-        localStorage.setItem("accessToken", response.data.accessToken);
-        localStorage.setItem("refreshToken", response.data.refreshToken);
-
-        // Call success with user data
-        onVerificationSuccess(response.data);
-      }
+      const userData = await verifyOTP(otpId, otp);
+      // Call success with user data - this will trigger navigation
+      onVerificationSuccess(userData);
     } catch (err: any) {
-      const message = err.response?.data?.message || "OTP verification failed";
+      const message = err.message || "OTP verification failed";
       setError(message);
       setAttemptCount((prev) => {
         const newCount = prev + 1;
@@ -88,11 +79,11 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({
     }, 1000);
 
     try {
-      await api.post("/auth/resend-otp", { otpId });
+      await resendOTP(otpId);
       setOtp("");
       setAttemptCount(0);
     } catch (err: any) {
-      setError(err.response?.data?.message || "Failed to resend OTP");
+      setError(err.message || "Failed to resend OTP");
     } finally {
       setLoading(false);
     }
