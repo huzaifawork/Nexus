@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const OTPSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     email: {
@@ -30,7 +30,7 @@ const OTPSchema = new mongoose.Schema(
       index: { expireAfterSeconds: 0 }, // Auto-delete after expiration
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-module.exports = mongoose.model('OTP', OTPSchema);
+module.exports = mongoose.model("OTP", OTPSchema);

@@ -5,17 +5,19 @@
 ### 1. Form Validation & Input Sanitization
 
 **Frontend Validation:**
+
 - Email format validation (RFC-compliant)
 - Password strength requirements:
   - Minimum 8 characters
   - Uppercase letters (A-Z)
   - Lowercase letters (a-z)
   - Numbers (0-9)
-  - Special characters (@$!%*?&)
+  - Special characters (@$!%\*?&)
 - Name length limits (max 100 characters)
 - Real-time validation feedback
 
 **Backend Sanitization:**
+
 - XSS Prevention using `xss-clean` package
 - NoSQL Injection prevention using `express-mongo-sanitize`
 - Input length limiting
@@ -24,6 +26,7 @@
 - String sanitization (trim, max length)
 
 **Implementation Location:**
+
 - Frontend: `src/pages/auth/RegisterPage.tsx` (client-side validation)
 - Backend: `backend/middleware/sanitize.js` (server-side sanitization)
 - Backend: `backend/server.js` (middleware application)
@@ -31,6 +34,7 @@
 ### 2. Password Hashing & JWT Security
 
 **Password Management:**
+
 - bcryptjs for password hashing
 - Salt rounds: 10 (secure default)
 - Passwords never stored in plain text
@@ -38,6 +42,7 @@
 - `matchPassword()` method for secure comparison
 
 **JWT Token Strategy:**
+
 - **Access Token**: Short-lived (15 minutes)
   - Used for API requests
   - Automatically refreshed by interceptors
@@ -48,6 +53,7 @@
 - Automatic token refresh via axios interceptors
 
 **JWT Features:**
+
 - HS256 signing algorithm
 - Unique token per user
 - Expiration time enforcement
@@ -55,6 +61,7 @@
 - Clear error messages for expired/invalid tokens
 
 **Implementation Location:**
+
 - Backend: `backend/controllers/authController.js` (token generation)
 - Backend: `backend/middleware/auth.js` (token verification)
 - Frontend: `src/context/AuthContext.tsx` (token refresh interceptor)
@@ -62,6 +69,7 @@
 ### 3. Two-Factor Authentication (2FA)
 
 **OTP-Based 2FA:**
+
 - 6-digit OTP codes sent via email
 - 10-minute expiration time
 - Auto-delete OTP after expiration (MongoDB TTL index)
@@ -70,6 +78,7 @@
 - Secure OTP storage in database
 
 **OTP Flow:**
+
 1. User enters credentials (email + password)
 2. Backend validates credentials
 3. OTP code generated (random 6 digits)
@@ -80,6 +89,7 @@
 8. Frontend stores tokens and redirects to dashboard
 
 **Email Configuration:**
+
 - Nodemailer integration
 - HTML-formatted OTP emails
 - Fallback to mock Mailhog for testing
@@ -92,6 +102,7 @@
   - `EMAIL_SECURE`: Use TLS (true/false)
 
 **Implementation Location:**
+
 - Backend Model: `backend/models/OTP.js`
 - Backend Controller: `backend/controllers/authController.js` (verifyOTP, resendOTP)
 - Backend Routes: `backend/routes/auth.js` (POST /verify-otp, POST /resend-otp)
@@ -101,16 +112,19 @@
 ### 4. Role-Based Authorization (RBAC)
 
 **Default Roles:**
+
 - `entrepreneur`: Startup founders, business owners
 - `investor`: Investors, venture capitalists
 
 **Authorization Middleware:**
+
 - `protect`: Requires valid JWT token
 - `authorize(...roles)`: Role-based access control
 - `isOwner`: Verify user owns resource being modified
 - `roleGuard`: Legacy role check (deprecated, use `authorize`)
 
 **Protected Routes:**
+
 - **Payment Routes**: All routes require authentication
   - `POST /api/payments/deposit` - Any authenticated user
   - `POST /api/payments/withdraw` - Any authenticated user
@@ -136,6 +150,7 @@
   - `PATCH /api/collaborations/:id` - Authenticated users
 
 **Implementation Location:**
+
 - Backend: `backend/middleware/auth.js` (authorize, protect, isOwner)
 - Backend: `backend/routes/users.js` (role-based access examples)
 - Backend: `backend/routes/payments.js` (authentication on all routes)
@@ -143,29 +158,35 @@
 ### 5. Token Management & Session Security
 
 **Token Storage:**
+
 - Access Token: localStorage (short-lived, safe)
 - Refresh Token: localStorage (long-lived, auto-refresh)
 - User Data: localStorage (public profile info)
 
 **Session Management:**
+
 - Automatic logout when refresh token fails
 - Token refresh before expiration (15m access, 7d refresh)
 - Clear tokens on logout
 - Clear tokens on 401 errors
 
 **Security Headers Added:**
+
 - CORS: Restricted to CLIENT_URL environment variable
 - Content-Type: JSON only
 - Authorization: Bearer token validation
 
 **Implementation Location:**
+
 - Frontend: `src/context/AuthContext.tsx` (token management & axios interceptors)
 - Backend: `backend/server.js` (CORS configuration)
 
 ## 🧪 Testing Instructions
 
 ### Test 2FA Flow
+
 1. **Start Login Process:**
+
    ```bash
    Navigate to /login
    Select Demo Account (Entrepreneur or Investor)
@@ -173,6 +194,7 @@
    ```
 
 2. **Verify OTP:**
+
    ```bash
    Check email for 6-digit OTP code
    Enter OTP in verification screen
@@ -187,6 +209,7 @@
    ```
 
 ### Test Password Validation
+
 1. **Weak Passwords (Will Fail):**
    - `password` (no uppercase, numbers, special chars)
    - `Pass123` (no special chars, only 7 chars)
@@ -198,7 +221,9 @@
    - `Complex$Password99`
 
 ### Test Role-Based Access
+
 1. **Entrepreneur Login:**
+
    ```bash
    Email: sarah@techwave.io
    Password: SecurePass@123
@@ -213,6 +238,7 @@
    ```
 
 ### Test Authorization
+
 1. **Try Profile Edit:**
    - Login as user A
    - Try to edit user B's profile (should fail with 403)
@@ -226,12 +252,14 @@
 ## 📋 Security Checklist
 
 ✅ **Form Validation:**
+
 - [x] Email format validation
 - [x] Password strength enforcement
 - [x] Length limits on inputs
 - [x] Real-time client-side validation
 
 ✅ **Input Sanitization:**
+
 - [x] XSS prevention (HTML tag stripping)
 - [x] NoSQL injection prevention
 - [x] Input length limiting
@@ -239,12 +267,14 @@
 - [x] String sanitization
 
 ✅ **Password Security:**
+
 - [x] bcryptjs hashing with salt
 - [x] Never store plain text passwords
 - [x] Secure password comparison
 - [x] Password change endpoint
 
 ✅ **JWT Security:**
+
 - [x] Access token (15m expiration)
 - [x] Refresh token (7d expiration)
 - [x] Token signature verification
@@ -252,6 +282,7 @@
 - [x] Clear error messages
 
 ✅ **2FA Implementation:**
+
 - [x] OTP generation (random 6-digit)
 - [x] OTP email delivery
 - [x] OTP expiration (10 minutes)
@@ -260,6 +291,7 @@
 - [x] Frontend OTP verification UI
 
 ✅ **Role-Based Authorization:**
+
 - [x] Entrepreneur & Investor roles
 - [x] protect middleware (JWT verification)
 - [x] authorize middleware (role checking)
@@ -267,6 +299,7 @@
 - [x] All sensitive routes protected
 
 ✅ **Session Management:**
+
 - [x] Token refresh interceptor
 - [x] Automatic logout on expired tokens
 - [x] Clear tokens on logout
@@ -275,6 +308,7 @@
 ## 🚀 API Endpoints Added/Modified
 
 ### Authentication Routes
+
 - `POST /api/auth/register` - Create new account with password strength validation
 - `POST /api/auth/login` - Login and get OTP ID (2FA required)
 - `POST /api/auth/verify-otp` - Verify OTP and get access/refresh tokens
@@ -286,6 +320,7 @@
 ### Response Examples
 
 **Login Response (OTP Required):**
+
 ```json
 {
   "_id": "user_id",
@@ -297,6 +332,7 @@
 ```
 
 **OTP Verification Response:**
+
 ```json
 {
   "_id": "user_id",
@@ -310,6 +346,7 @@
 ```
 
 **Token Refresh Response:**
+
 ```json
 {
   "accessToken": "eyJhbGc...",
@@ -411,12 +448,14 @@ curl -X POST http://localhost:5000/api/auth/refresh-token \
 **Status: 100% COMPLETE**
 
 All 4 Security Requirements Implemented:
+
 1. ✅ Form validation & sanitization (XSS/SQL injection prevention)
 2. ✅ Password hashing (bcrypt) & secure JWT tokens
 3. ✅ 2FA mockup (OTP via email/Nodemailer)
 4. ✅ Role-based authorization on protected routes
 
 **Files Modified/Created (20+ files):**
+
 - Backend: 7 files (models, controllers, middleware, routes, server)
 - Frontend: 6 files (components, pages, context, types)
 - Configuration: 1 file (package.json)
